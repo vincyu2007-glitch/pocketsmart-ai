@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% from "_macros.html" import plan_tabs %}
+{% block title %}Plan history - PocketSmart AI{% endblock %}
+
+{% block content %}
+<section class="container section">
+  <div class="page-head">
+    <div>
+      <h1>Your plans</h1>
+      <p class="muted">{{ total }} saved plan{{ '' if total == 1 else 's' }}.</p>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('web.dashboard') }}">New plan</a>
+  </div>
+
+  <div class="filter-row">
+    <a class="filter {{ 'active' if not plan_filter }}" href="{{ url_for('web.history_page') }}">All</a>
+    <a class="filter {{ 'active' if plan_filter == 'home' }}" href="{{ url_for('web.history_page', type='home') }}">Home</a>
+    <a class="filter {{ 'active' if plan_filter == 'party' }}" href="{{ url_for('web.history_page', type='party') }}">Party</a>
+    <a class="filter {{ 'active' if plan_filter == 'jewelry' }}" href="{{ url_for('web.history_page', type='jewelry') }}">Jewelry</a>
+  </div>
+
+  {% if not recent %}
+    <div class="empty">
+      <p>Nothing here yet.</p>
+      <div class="card-grid">
+        <a class="btn btn-outline" href="{{ url_for('web.plan_form', plan_type='home') }}">Home planner</a>
+        <a class="btn btn-outline" href="{{ url_for('web.plan_form', plan_type='party') }}">Party planner</a>
+        <a class="btn btn-outline" href="{{ url_for('web.plan_form', plan_type='jewelry') }}">Jewelry planner</a>
+      </div>
+    </div>
+  {% else %}
+    <div class="reco-list">
+      {% for r in recent %}
+        <div class="reco-row reco-row-action">
+          <span class="reco-type type-{{ r.plan_type }}">{{ r.plan_type }}</span>
+          <a class="reco-title" href="{{ url_for('web.result', rec_id=r.id) }}">{{ r.title }}</a>
+          <span class="reco-source {{ 'src-ai' if r.source == 'ai' else 'src-offline' }}">{{ 'AI' if r.source == 'ai' else 'sample' }}</span>
+          <span class="reco-date muted">{{ r.created_at[:16].replace('T', ' ') if r.created_at else '' }}</span>
+          <form method="post" action="{{ url_for('web.history_delete', rec_id=r.id) }}" class="inline-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <button class="btn btn-ghost btn-sm" type="submit" data-confirm="Delete this plan?">Delete</button>
+          </form>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

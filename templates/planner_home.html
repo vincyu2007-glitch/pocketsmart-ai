@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf, money_field, text_field, text_area, select_field, plan_tabs %}
+{% set ROOM_TYPES = ['Living Room', 'Bedroom', 'Kitchen', 'Dining', 'Kids Room', 'Study', 'Office', 'Bathroom', 'Balcony', 'Pooja Room'] %}
+{% set STYLES = ['Modern', 'Minimalist', 'Traditional', 'Industrial', 'Scandinavian', 'Boho'] %}
+{% set TIMELINES = ['Immediately', 'Within 1 month', 'Within 3 months', 'Within 6 months'] %}
+{% block title %}Home Budget Planner - PocketSmart AI{% endblock %}
+
+{% block content %}
+<section class="container section">
+  <div class="page-head">
+    <div>
+      <h1>Home Interior Planner</h1>
+      <p class="muted">Furniture, lighting, storage, decor and services - sized to your carpet area and ceiling.</p>
+    </div>
+  </div>
+
+  {{ plan_tabs('home') }}
+
+  <div class="planner-layout">
+    <form class="card planner-form" method="post" action="{{ url_for('web.plan_submit', plan_type='home') }}">
+      {{ csrf() }}
+
+      <h2 class="form-section">The basics</h2>
+      {{ money_field('budget', 'Total budget', form.get('budget'), errors, 'A hard ceiling. We never plan above it.') }}
+      {{ select_field('room_type', 'Room type', ROOM_TYPES, form.get('room_type'), errors) }}
+      {{ text_field('area_sqft', 'Carpet area (sq ft)', form.get('area_sqft'), errors, 'Measure length x width of the usable floor.', type='number', maxlength=6) }}
+      {{ text_field('occupants', 'People using the room', form.get('occupants'), errors, 'Affects seating and storage quantities.', type='number', maxlength=3) }}
+
+      <h2 class="form-section">Taste</h2>
+      {{ select_field('style', 'Interior style', STYLES, form.get('style'), errors) }}
+      {{ text_field('color_preference', 'Colour direction', form.get('color_preference'), errors, 'e.g. warm neutrals with brass accents', maxlength=120) }}
+      {{ text_field('city', 'City', form.get('city'), errors, 'Affects delivery and service costs.', maxlength=60) }}
+
+      <h2 class="form-section">What you already have</h2>
+      {{ text_area('existing_items', 'Items to keep', form.get('existing_items'), errors, 'One per line, e.g. "Old queen bed", "2 wooden chairs".', rows=3) }}
+      {{ text_area('must_haves', 'Must-have items', form.get('must_haves'), errors, 'Non-negotiables, one per line.', rows=3) }}
+      {{ select_field('timeline', 'Timeline', TIMELINES, form.get('timeline'), errors) }}
+
+      <button class="btn btn-primary btn-block btn-lg" type="submit" data-loading-text="Planning your room...">
+        Generate my room plan
+      </button>
+      <p class="hint center">Uses {{ ai.model }}. No API key? You'll still get a full sample plan.</p>
+    </form>
+
+    <aside class="planner-aside">
+      <div class="card soft">
+        <h3>Where we shop</h3>
+        <div class="pill-row">
+          {% for p in platforms %}<span class="pill">{{ p.name }}<em>{{ p.category }}</em></span>{% endfor %}
+        </div>
+      </div>
+      <div class="card soft">
+        <h3>How the split works</h3>
+        <p class="muted">Furniture takes the largest share, then lighting, storage and decor. We always hold back 3-5% as contingency, and we reconcile the final split so it equals your budget to the rupee.</p>
+      </div>
+    </aside>
+  </div>
+</section>
+{% endblock %}

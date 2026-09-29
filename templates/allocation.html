@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% from "_macros.html" import plan_tabs %}
+{% block title %}Budget allocation - PocketSmart AI{% endblock %}
+
+{% block content %}
+<section class="container section">
+  <div class="page-head">
+    <div>
+      <h1>Budget allocation</h1>
+      <p class="muted">The split only - no products. Useful for a first sanity check before you shop.</p>
+    </div>
+    <a class="btn btn-ghost" href="{{ url_for('web.plan_form', plan_type=plan_type) }}">Add products</a>
+  </div>
+
+  {{ plan_tabs(plan_type) }}
+
+  {% if result.meta.notice %}
+    <div class="flash flash-info">{{ result.meta.notice }}</div>
+  {% endif %}
+
+  <div class="card">
+    <p>{{ result.summary }}</p>
+    <div class="alloc-list">
+      {% for row in result.budget_breakdown %}
+        <div class="alloc-row">
+          <div class="alloc-head">
+            <span class="alloc-name">{{ row.category }}</span>
+            <span class="alloc-amount">&#8377;{{ inr(row.amount) }}</span>
+          </div>
+          <div class="alloc-bar"><i style="--w: {{ [row.percentage, 100] | min }}%"></i></div>
+          {% if row.notes %}<div class="alloc-foot"><span class="muted">{{ row.notes }}</span></div>{% endif %}
+        </div>
+      {% endfor %}
+    </div>
+    <div class="alloc-total">
+      <span>Total</span><b>&#8377;{{ inr(result.total_budget) }}</b>
+    </div>
+  </div>
+
+  {% if result.suggestions %}
+    <div class="card">
+      <h2>Tips</h2>
+      <ul class="tick-list">
+        {% for s in result.suggestions %}<li>{{ s }}</li>{% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

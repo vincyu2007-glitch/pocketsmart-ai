@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf, money_field, text_field, select_field, plan_tabs %}
+{% set OCCASIONS = ['Wedding', 'Engagement', 'Anniversary', 'Birthday Gift', 'Festival / Diwali', 'Office / Daily Wear', 'Anniversary Gift'] %}
+{% set METALS = ['Gold', 'Silver', 'Diamond', 'Platinum', 'Fashion / American Diamond'] %}
+{% set STYLES = ['Traditional', 'Contemporary', 'Minimalist', 'Statement', 'Elegant', 'Trendy'] %}
+{% set KARATS = ['14K', '18K', '22K', '24K', '925 Silver', 'Not Applicable'] %}
+{% block title %}Jewelry Budget Planner - PocketSmart AI{% endblock %}
+
+{% block content %}
+<section class="container section">
+  <div class="page-head">
+    <div>
+      <h1>Jewelry Planner</h1>
+      <p class="muted">Occasion, metal and purity - with optional image matching so the piece suits what you wear.</p>
+    </div>
+  </div>
+
+  {{ plan_tabs('jewelry') }}
+
+  <div class="planner-layout">
+    <form class="card planner-form" method="post" enctype="multipart/form-data"
+          action="{{ url_for('web.plan_submit', plan_type='jewelry') }}">
+      {{ csrf() }}
+
+      <h2 class="form-section">The purchase</h2>
+      {{ money_field('budget', 'Total budget', form.get('budget'), errors, 'All-in: metal, stones, making charges and certification.') }}
+      {{ select_field('occasion', 'Occasion', OCCASIONS, form.get('occasion'), errors) }}
+      {{ select_field('metal', 'Metal', METALS, form.get('metal'), errors) }}
+      {{ select_field('karat', 'Purity', KARATS, form.get('karat'), errors) }}
+      {{ select_field('style', 'Style', STYLES, form.get('style'), errors) }}
+
+      <h2 class="form-section">Personalise</h2>
+      {{ text_field('gift_for', 'Buying for', form.get('gift_for'), errors, 'e.g. self, wife, mother, daughter', maxlength=80) }}
+      {{ text_field('wearing_frequency', 'How often worn', form.get('wearing_frequency'), errors, 'e.g. daily at office, only on weddings', maxlength=80) }}
+      {{ text_field('color_preference', 'Colour notes', form.get('color_preference'), errors, 'e.g. matches a maroon and gold outfit', maxlength=200) }}
+
+      <h2 class="form-section">Match an image <span class="tag">optional</span></h2>
+      <div class="field {{ 'has-error' if errors.get('image') }}">
+        <label for="image">Upload an outfit or product photo</label>
+        <label class="dropzone" id="dropzone" for="image">
+          <input id="image" name="image" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
+          <span class="dropzone-text">
+            <b>Click to choose</b> or drag an image here<br>
+            <span class="muted">JPEG, PNG, WEBP or GIF, up to 8 MB. Used only for this request.</span>
+          </span>
+        </label>
+        <div class="preview" id="preview" hidden>
+          <img alt="Selected preview" id="preview-img">
+          <div class="preview-meta">
+            <span id="preview-name"></span>
+            <span class="muted" id="preview-size"></span>
+          </div>
+        </div>
+        {% if errors.image %}<p class="field-error">{{ errors.image }}</p>{% endif %}
+        <p class="hint">Gemini reads colour, neckline and formality from the image to pick the metal, stone and setting.</p>
+      </div>
+
+      <button class="btn btn-primary btn-block btn-lg" type="submit" data-loading-text="Analysing image and planning...">
+        Generate my jewelry plan
+      </button>
+    </form>
+
+    <aside class="planner-aside">
+      <div class="card soft">
+        <h3>Where we shop</h3>
+        <div class="pill-row">
+          {% for p in platforms %}<span class="pill">{{ p.name }}<em>{{ p.category }}</em></span>{% endfor %}
+        </div>
+      </div>
+      <div class="card soft">
+        <h3>Jewellery money rules</h3>
+        <p class="muted">Making charges run 10-25% of metal value and are the easiest place to overshoot - always ask for them in writing. Gold rates move daily, so we keep a 3-5% buffer. Lab-grown diamonds give the same look for 40-60% less.</p>
+      </div>
+      <div class="card soft">
+        <h3>Never skip</h3>
+        <p class="muted">BIS hallmark on gold, IGI or AGS certification on diamonds, and a written exchange/buy-back policy. We include them as line items.</p>
+      </div>
+    </aside>
+  </div>
+</section>
+{% endblock %}

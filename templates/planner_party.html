@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf, money_field, text_field, select_field, plan_tabs %}
+{% set EVENTS = ['Birthday', 'Wedding', 'Engagement', 'Anniversary', 'Corporate', 'Baby Shower', 'Graduation', 'Festivals'] %}
+{% set VENUES = ['At Home', 'Rented Party Hall', 'Hotel / Banquet', 'Outdoor / Farmhouse', 'Restaurant'] %}
+{% set ENTERTAINMENT = ['DJ', 'Live Music', 'Games & Activities', 'Photo Booth', 'None'] %}
+{% block title %}Party Budget Planner - PocketSmart AI{% endblock %}
+
+{% block content %}
+<section class="container section">
+  <div class="page-head">
+    <div>
+      <h1>Party Budget Planner</h1>
+      <p class="muted">Guests in, per-head rate out. Food, venue, decor, entertainment and gifts - inside your ceiling.</p>
+    </div>
+  </div>
+
+  {{ plan_tabs('party') }}
+
+  <div class="planner-layout">
+    <form class="card planner-form" method="post" action="{{ url_for('web.plan_submit', plan_type='party') }}">
+      {{ csrf() }}
+
+      <h2 class="form-section">The event</h2>
+      {{ money_field('budget', 'Total budget', form.get('budget'), errors, 'Keep the last 3% for taxis, ice and surprise guests.') }}
+      {{ select_field('event_type', 'Event type', EVENTS, form.get('event_type'), errors) }}
+      {{ text_field('guest_count', 'Expected guests', form.get('guest_count'), errors, 'We add a 10% buffer on top.', type='number', maxlength=4) }}
+      {{ select_field('venue', 'Venue type', VENUES, form.get('venue'), errors) }}
+      {{ text_field('event_date', 'Event date', form.get('event_date'), errors, 'e.g. 14 Feb 2027 - used to flag lead times.', maxlength=40) }}
+      {{ text_field('city', 'City', form.get('city'), errors, 'Venue and vendor prices vary a lot by city.', maxlength=60) }}
+
+      <h2 class="form-section">Food &amp; decor</h2>
+      {{ text_field('food_preference', 'Food preference', form.get('food_preference'), errors, 'e.g. North Indian, one Jain menu, no alcohol', maxlength=300) }}
+      {{ text_field('decor_theme', 'Decor theme', form.get('decor_theme'), errors, 'e.g. pastel garden, rustic Bollywood, corporate minimal', maxlength=200) }}
+
+      <div class="field">
+        <label>Entertainment</label>
+        <div class="checkbox-grid">
+          {% for option in ENTERTAINMENT %}
+            <label class="check">
+              <input type="checkbox" name="entertainment" value="{{ option }}"
+                     {{ 'checked' if option in (form.get('entertainment') or []) else '' }}>
+              <span>{{ option }}</span>
+            </label>
+          {% endfor %}
+        </div>
+        {% if errors.entertainment %}<p class="field-error">{{ errors.entertainment }}</p>{% endif %}
+      </div>
+
+      <button class="btn btn-primary btn-block btn-lg" type="submit" data-loading-text="Planning your party...">
+        Generate my party plan
+      </button>
+      <p class="hint center">Per-head rate is calculated from guests and budget before anything is recommended.</p>
+    </form>
+
+    <aside class="planner-aside">
+      <div class="card soft">
+        <h3>Where we shop</h3>
+        <div class="pill-row">
+          {% for p in platforms %}<span class="pill">{{ p.name }}<em>{{ p.category }}</em></span>{% endfor %}
+        </div>
+      </div>
+      <div class="card soft">
+        <h3>Where the money goes</h3>
+        <p class="muted">Food and beverages take 28-34% - it is the line guests remember. Venue and decor come next. We keep 2-3% contingency because vendor overruns are the rule, not the exception.</p>
+      </div>
+    </aside>
+  </div>
+</section>
+{% endblock %}

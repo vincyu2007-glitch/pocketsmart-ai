@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: pocketsmart-ai
+    runtime: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn "wsgi:application" --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 120
+    healthCheckPath: /api/health
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
+      - key: SESSION_COOKIE_SECURE
+        value: "true"
+      - key: DATABASE_PATH
+        value: /tmp/pocketsmart.db
+      - key: DATA_DIR
+        value: /tmp

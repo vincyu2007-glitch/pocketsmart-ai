@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}PocketSmart AI - smart budgets for home, parties and jewellery{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="container hero-inner">
+    <div class="hero-copy">
+      <span class="badge">Powered by {{ ai.model or 'Gemini' }}</span>
+      <h1>Spend smart on <span class="grad">homes, parties and jewellery</span></h1>
+      <p class="lead">
+        Tell PocketSmart your budget and what you want. Gemini splits every rupee across categories,
+        picks products that actually fit, and hands you shopping links on Amazon, IKEA, Flipkart,
+        Swiggy, OYO, Myntra and more.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary btn-lg" href="{{ url_for('web.plan_form', plan_type='home') }}">Plan my room</a>
+        <a class="btn btn-outline btn-lg" href="{{ url_for('web.plan_form', plan_type='party') }}">Plan my party</a>
+        <a class="btn btn-outline btn-lg" href="{{ url_for('web.plan_form', plan_type='jewelry') }}">Plan my jewellery</a>
+      </div>
+      {% if not ai.available %}
+      <p class="notice">
+        <strong>Demo mode.</strong> No <code>GEMINI_API_KEY</code> found, so plans come from the built-in
+        sample engine. Copy <code>.env.example</code> to <code>.env</code>, add your key, and restart to switch
+        to live AI generation.
+      </p>
+      {% endif %}
+    </div>
+
+    <div class="hero-card" aria-hidden="true">
+      <div class="hero-card-head">
+        <span>Sample allocation</span><span class="muted">INR</span>
+      </div>
+      <div class="bar-row"><span>Food &amp; Beverages</span><b>30%</b><i style="--w:30%"></i></div>
+      <div class="bar-row"><span>Decor &amp; Theme</span><b>18%</b><i style="--w:18%"></i></div>
+      <div class="bar-row"><span>Venue &amp; Rentals</span><b>20%</b><i style="--w:20%"></i></div>
+      <div class="bar-row"><span>Entertainment</span><b>9%</b><i style="--w:9%"></i></div>
+      <div class="bar-row"><span>Contingency</span><b>3%</b><i style="--w:3%"></i></div>
+    </div>
+  </div>
+</section>
+
+<section class="container section">
+  <h2 class="section-title">Three planners, one budget engine</h2>
+  <div class="card-grid">
+    <article class="card">
+      <div class="card-icon">&#127968;</div>
+      <h3>Home Interior Planner</h3>
+      <p>Room type, carpet area, style and what you already own. Get a room-by-room split across furniture, lighting, storage, decor, appliances and services.</p>
+      <ul class="tick-list">
+        <li>Area-aware quantities</li>
+        <li>IKEA, Pepperfry, Urban Company links</li>
+        <li>Contingency built in</li>
+      </ul>
+      <a class="btn btn-primary" href="{{ url_for('web.plan_form', plan_type='home') }}">Start planning</a>
+    </article>
+
+    <article class="card">
+      <div class="card-icon">&#127881;</div>
+      <h3>Party Budget Planner</h3>
+      <p>Event type, guest count and venue. We work out the per-head rate first, then build food, decor, entertainment and gifts around it.</p>
+      <ul class="tick-list">
+        <li>Per-guest maths you can defend</li>
+        <li>Swiggy, Zomato, OYO, PartyKart links</li>
+        <li>10% guest buffer flagged</li>
+      </ul>
+      <a class="btn btn-primary" href="{{ url_for('web.plan_form', plan_type='party') }}">Start planning</a>
+    </article>
+
+    <article class="card">
+      <div class="card-icon">&#128142;</div>
+      <h3>Jewelry Planner</h3>
+      <p>Occasion, metal, purity and budget. Upload an outfit photo and the plan matches stone, metal and setting to it.</p>
+      <ul class="tick-list">
+        <li>Image-aware (multimodal)</li>
+        <li>Grams / carat estimate</li>
+        <li>Tanishq, CaratLane, Bluestone links</li>
+      </ul>
+      <a class="btn btn-primary" href="{{ url_for('web.plan_form', plan_type='jewelry') }}">Start planning</a>
+    </article>
+  </div>
+</section>
+
+<section class="container section">
+  <h2 class="section-title">How it works</h2>
+  <ol class="steps">
+    <li><b>1. You set the ceiling.</b> Budget, preferences and any images you choose to share.</li>
+    <li><b>2. We prompt Gemini for structure.</b> Role, hard constraints and a strict JSON schema - never free-form prose.</li>
+    <li><b>3. We reconcile the numbers.</b> Every category is forced to sum to your exact budget before it renders.</li>
+    <li><b>4. We build real links.</b> Server-side platform registry, so the model can never hallucinate a URL.</li>
+  </ol>
+</section>
+
+<section class="container section">
+  <h2 class="section-title">Where we send you shopping</h2>
+  <div class="pill-row">
+    {% for p in platforms %}<span class="pill">{{ p.name }}<em>{{ p.category }}</em></span>{% endfor %}
+    <span class="pill">Amazon<em>Marketplace</em></span>
+    <span class="pill">Swiggy<em>Food</em></span>
+    <span class="pill">OYO<em>Venues</em></span>
+    <span class="pill">Myntra<em>Fashion jewellery</em></span>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% macro csrf() -%}
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+{%- endmacro %}
+
+{% macro money_field(name, label, value, errors, hint='', required=true, placeholder='e.g. 150000') -%}
+  <div class="field {{ 'has-error' if errors.get(name) }}">
+    <label for="{{ name }}">{{ label }}{% if required %}<span class="req">*</span>{% endif %}</label>
+    <div class="input-prefix"><span>&#8377;</span>
+      <input id="{{ name }}" name="{{ name }}" type="number" inputmode="numeric"
+             min="1000" max="50000000" step="500"
+             value="{{ value if value not in (None, '') else '' }}"
+             placeholder="{{ placeholder }}" {% if required %}required{% endif %}
+             {% if name in errors %}aria-invalid="true" aria-describedby="{{ name }}-err"{% endif %}>
+    </div>
+    {% if name in errors %}<p class="field-error" id="{{ name }}-err">{{ errors[name] }}</p>
+    {% elif hint %}<p class="hint">{{ hint }}</p>{% endif %}
+  </div>
+{%- endmacro %}
+
+{% macro text_field(name, label, value, errors, hint='', placeholder='', type='text', maxlength=120) -%}
+  <div class="field {{ 'has-error' if errors.get(name) }}">
+    <label for="{{ name }}">{{ label }}</label>
+    <input id="{{ name }}" name="{{ name }}" type="{{ type }}" maxlength="{{ maxlength }}"
+           value="{{ value or '' }}" placeholder="{{ placeholder }}"
+           {% if name in errors %}aria-invalid="true"{% endif %}>
+    {% if name in errors %}<p class="field-error">{{ errors[name] }}</p>
+    {% elif hint %}<p class="hint">{{ hint }}</p>{% endif %}
+  </div>
+{%- endmacro %}
+
+{% macro text_area(name, label, value, errors, hint='', placeholder='', rows=3, maxlength=600) -%}
+  <div class="field {{ 'has-error' if errors.get(name) }}">
+    <label for="{{ name }}">{{ label }}</label>
+    <textarea id="{{ name }}" name="{{ name }}" rows="{{ rows }}" maxlength="{{ maxlength }}"
+              placeholder="{{ placeholder }}">{{ value or '' }}</textarea>
+    {% if name in errors %}<p class="field-error">{{ errors[name] }}</p>
+    {% elif hint %}<p class="hint">{{ hint }}</p>{% endif %}
+  </div>
+{%- endmacro %}
+
+{% macro select_field(name, label, options, value, errors, hint='', required=true) -%}
+  <div class="field {{ 'has-error' if errors.get(name) }}">
+    <label for="{{ name }}">{{ label }}{% if required %}<span class="req">*</span>{% endif %}</label>
+    <select id="{{ name }}" name="{{ name }}" {% if required %}required{% endif %}>
+      {% for option in options %}
+        <option value="{{ option }}" {{ 'selected' if value == option else '' }}>{{ option }}</option>
+      {% endfor %}
+    </select>
+    {% if name in errors %}<p class="field-error">{{ errors[name] }}</p>
+    {% elif hint %}<p class="hint">{{ hint }}</p>{% endif %}
+  </div>
+{%- endmacro %}
+
+{% macro plan_tabs(active) -%}
+  <div class="plan-tabs" role="tablist">
+    <a role="tab" aria-selected="{{ 'true' if active == 'home' else 'false' }}"
+       class="{{ 'active' if active == 'home' }}" href="{{ url_for('web.plan_form', plan_type='home') }}">&#127968; Home</a>
+    <a role="tab" aria-selected="{{ 'true' if active == 'party' else 'false' }}"
+       class="{{ 'active' if active == 'party' }}" href="{{ url_for('web.plan_form', plan_type='party') }}">&#127881; Party</a>
+    <a role="tab" aria-selected="{{ 'true' if active == 'jewelry' else 'false' }}"
+       class="{{ 'active' if active == 'jewelry' }}" href="{{ url_for('web.plan_form', plan_type='jewelry') }}">&#128142; Jewelry</a>
+  </div>
+{%- endmacro %}
