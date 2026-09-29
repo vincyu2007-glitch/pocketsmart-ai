@@ -298,8 +298,8 @@ higher and inconsistent. Move the limit to the proxy or cache aggressively.
 **`Render` deploy fails at the build step**
 `pip install -r requirements.txt` failing is almost always Python version. The
 blueprint does not pin one; the app needs **3.11 or newer**. Add
-`PYTHON_VERSION` to the environment, or rely on the CI matrix in
-`.github/workflows/ci.yml` to confirm which versions work.
+`PYTHON_VERSION` to the service environment, or test locally with
+`python -m pytest` on the version you intend to deploy.
 
 **ModuleNotFoundError on a fresh clone**
 `google-genai` failed to install, so `GeminiClient._detect_sdk` returns `None`

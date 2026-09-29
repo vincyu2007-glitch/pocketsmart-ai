@@ -224,8 +224,7 @@ extractor and response normaliser, prompt construction, shopping-link safety,
 SQLite persistence, form validation and the HTTP routes. No network access and
 no API key required.
 
-CI runs the suite on Python 3.11, 3.12 and 3.13 via
-[`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+Verified on Python 3.11, 3.12 and 3.13.
 
 ---
 
