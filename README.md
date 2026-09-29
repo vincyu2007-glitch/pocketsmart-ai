@@ -237,4 +237,4 @@ See **[DEPLOY.md](DEPLOY.md)** for step-by-step deployment to Render (a
 
 ## Licence
 
-Private project. All rights reserved.
+No licence granted. All rights reserved.
